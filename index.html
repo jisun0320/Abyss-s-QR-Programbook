@@ -259,7 +259,7 @@ document.body.style.overflow='hidden';
 const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sc=document.getElementById('introSand'),sctx=sc.getContext('2d');
 let ready=false,done=false,pT=0,pD=0,raf=null;
-let T=null,tw=0,th=0,cx=0,cy=0,N1=null,N2=null,ns=0;
+let T=null,tw=0,th=0,cx=0,cy=0,N1=null,N2=null,ns=0,MB=false;
 function makeNoise(w,hh,d){
 const c=document.createElement('canvas');c.width=w;c.height=hh;
 const x=c.getContext('2d');const img=x.createImageData(w,hh);const dt=img.data;
@@ -267,8 +267,10 @@ for(let i=0;i<dt.length;i+=4){dt[i]=dt[i+1]=dt[i+2]=255;dt[i+3]=(Math.random()<d
 x.putImageData(img,0,0);return c;
 }
 function build(){
+try{
 const rect=en.getBoundingClientRect();
 if(!rect.width){setTimeout(build,120);return;}
+MB=Math.min(innerWidth,innerHeight)<620;
 const cs=getComputedStyle(en),fs=parseFloat(cs.fontSize),pad=Math.ceil(fs*0.4);
 tw=Math.ceil(rect.width)+pad*2;th=Math.ceil(rect.height)+pad*2;
 T=document.createElement('canvas');T.width=tw;T.height=th;
@@ -285,18 +287,26 @@ sc.style.width=innerWidth+'px';sc.style.height=innerHeight+'px';
 sctx.setTransform(DPR,0,0,DPR,0,0);
 en.style.opacity='0';
 ready=true;raf=requestAnimationFrame(frame);
+}catch(e){fallback();}
+}
+function fallback(){
+en.style.opacity='';
+const go=()=>{en.style.transition='opacity .6s';en.style.opacity='0';setTimeout(end,500);};
+intro.addEventListener('click',go);
+intro.addEventListener('wheel',go,{passive:true});
+intro.addEventListener('touchmove',go,{passive:true});
 }
 function frame(){
 if(done)return;
 pD+=(pT-pD)*0.08;
 const p=pD;
 sctx.clearRect(0,0,innerWidth,innerHeight);
-const reach=0.45+p*3.4;
+const reach=(MB?0.62:0.45)+p*3.4;
 const K=14;
 sctx.globalCompositeOperation='lighter';
 for(let i=1;i<=K;i++){
 const f=i/K;
-const a=(0.16+p*0.22)*Math.pow(1-f,1.7);
+const a=((MB?0.24:0.16)+p*0.22)*Math.pow(1-f,1.7);
 if(a<0.004)continue;
 const sy=1+f*f*reach;
 sctx.globalAlpha=a;
@@ -306,7 +316,7 @@ sctx.globalCompositeOperation='source-over';
 const core=Math.max(0,1-p*1.15);
 if(core>0){sctx.globalAlpha=Math.min(0.96,0.9*core+0.06);sctx.drawImage(T,cx-tw/2,cy-th/2,tw,th);}
 sctx.globalAlpha=1;
-const er=0.34+p*0.85;
+const er=(MB?0.42:0.34)+p*0.85;
 ns+=0.15;
 const o1=(ns*7)%256,o2=(ns*11)%256;
 const bandH=th*(1+reach)+60;
@@ -342,7 +352,8 @@ intro.addEventListener('click',go);
 intro.addEventListener('wheel',go,{passive:true});
 intro.addEventListener('touchmove',go,{passive:true});
 }else{
-if(document.fonts&&document.fonts.ready){document.fonts.ready.then(()=>setTimeout(build,80));}else setTimeout(build,450);
+const kick=()=>setTimeout(build,60);
+if(document.fonts&&document.fonts.load){Promise.race([Promise.all([document.fonts.load('500 60px Archivo'),document.fonts.ready]),new Promise(r=>setTimeout(r,1700))]).then(kick).catch(kick);}else setTimeout(build,500);
 intro.addEventListener('wheel',e=>{if(e.deltaY>0)bump(e.deltaY/950);},{passive:true});
 let ty=null;
 intro.addEventListener('touchstart',e=>{ty=e.touches[0].clientY;},{passive:true});
@@ -350,6 +361,7 @@ intro.addEventListener('touchmove',e=>{const y=e.touches[0].clientY;if(ty!==null
 intro.addEventListener('touchend',()=>{ty=null;},{passive:true});
 intro.addEventListener('click',()=>{const iv=setInterval(()=>{bump(0.045);if(pT>=1||done)clearInterval(iv);},40);});
 intro.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '||e.key==='ArrowDown')bump(0.18);});
+addEventListener('resize',()=>{if(done||!ready)return;ready=false;cancelAnimationFrame(raf);build();});
 }
 })();
 (function(){
