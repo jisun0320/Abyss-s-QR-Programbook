@@ -85,11 +85,13 @@
   <p class="rpoem" id="rPoem"></p>
   <div class="acts">
     <button class="btn primary" id="shareBtn">이 결과 공유하기</button>
-    <a class="btn" id="progLink" href="#">공연 프로그램북 보기 →</a>
+    <a class="btn" id="progLink" href="#" target="_blank" rel="noopener">공연 프로그램북 보기 →</a>
   </div>
   <button class="again" id="againBtn">다시 내려가기</button>
 </div>
 <script>
+/* 프로그램북 주소: 바뀌면 이 한 줄만 고치세요 */
+const PROG_URL='https://jisun0320.github.io/Abyss-s-QR-Programbook/';
 const MAXD=1500;
 const TIERS=[
   {min:0,   name:'수면',   en:'THE SURFACE', poem:'아직 햇빛이 닿는 곳.\n당신의 심연은 이제 막 첫 숨을 내쉬었습니다.'},
@@ -242,6 +244,9 @@ document.getElementById('shareBtn').addEventListener('click',async()=>{
   if(navigator.share){try{await navigator.share({title:"Abyss's — 나의 심연 깊이",text});}catch(e){}}
   else alert('화면을 캡처해 인스타그램 스토리에 공유해보세요.\n\n'+text);
 });
+
+// 프로그램북 링크 연결
+(function(){var a=document.getElementById('progLink');if(a){a.href=PROG_URL;a.addEventListener('click',function(e){e.preventDefault();window.open(PROG_URL,'_blank','noopener');});}})();
 </script>
 </body>
 </html>
