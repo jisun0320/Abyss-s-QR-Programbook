@@ -85,7 +85,7 @@
   <p class="rpoem" id="rPoem"></p>
   <div class="acts">
     <button class="btn primary" id="shareBtn">이 결과 공유하기</button>
-    <a class="btn" id="progLink" href="#" target="_blank" rel="noopener">공연 프로그램북 보기 →</a>
+    <a class="btn" id="progLink" href="https://jisun0320.github.io/Abyss-s-QR-Programbook/">공연 프로그램북 보기 →</a>
   </div>
   <button class="again" id="againBtn">다시 내려가기</button>
 </div>
@@ -245,8 +245,20 @@ document.getElementById('shareBtn').addEventListener('click',async()=>{
   else alert('화면을 캡처해 인스타그램 스토리에 공유해보세요.\n\n'+text);
 });
 
-// 프로그램북 링크 연결
-(function(){var a=document.getElementById('progLink');if(a){a.href=PROG_URL;a.addEventListener('click',function(e){e.preventDefault();window.open(PROG_URL,'_blank','noopener');});}})();
+
+
+// 프로그램북으로 확실히 이동 (기본 링크 + 클릭 시 강제 이동, 팝업/보안 환경 대비)
+(function(){
+  var URL_='https://jisun0320.github.io/Abyss-s-QR-Programbook/';
+  var a=document.getElementById('progLink');
+  if(!a)return;
+  a.setAttribute('href',URL_);
+  a.addEventListener('click',function(e){
+    e.preventDefault();
+    try{ if(window.top && window.top!==window.self){ window.top.location.href=URL_; return; } }catch(err){}
+    window.location.assign(URL_);
+  });
+})();
 </script>
 </body>
 </html>
